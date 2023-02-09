@@ -12,6 +12,10 @@ class _HomePageState extends State<HomePage> {
     brightness: Brightness.dark,
     primarySwatch: Colors.indigo,
   );
+  bool isUserMessage(int index) {
+    return index % 2 == 0;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,10 +54,12 @@ class _HomePageState extends State<HomePage> {
                 itemCount: messages.length,
                 itemBuilder: (context, index) {
                   return Container(
-                    margin:
-                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                    margin: EdgeInsets.symmetric(vertical: 10.0),
                     padding:
                         EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                    alignment: index % 2 == 0
+                        ? Alignment.centerRight
+                        : Alignment.centerLeft,
                     decoration: BoxDecoration(
                       color: themeData.primaryColor,
                       borderRadius: BorderRadius.circular(15.0),
@@ -63,6 +69,8 @@ class _HomePageState extends State<HomePage> {
                       style: TextStyle(
                         color: themeData.backgroundColor,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   );
                 },
@@ -90,7 +98,7 @@ class _HomePageState extends State<HomePage> {
                             icon: Icon(Icons.send),
                             onPressed: () {
                               setState(() {
-                                messages = [_textController.text] + messages;
+                                messages = messages + [_textController.text];
                                 print(messages);
                                 print(_textController.text);
                                 _textController.clear();
