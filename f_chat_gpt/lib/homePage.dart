@@ -62,7 +62,6 @@ class _HomePageState extends State<HomePage> {
                 reverse: false,
                 itemCount: messages.length,
                 itemBuilder: (context, index) {
-                        color: themeData.backgroundColor,
                   var message = messages[index];
                   var alignment = Alignment.centerRight;
                   if (message.sender == "robot") {
