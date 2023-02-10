@@ -5,9 +5,18 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
+class Message {
+  String text;
+  String sender;
+
+  Message(this.text, this.sender);
+}
+
 class _HomePageState extends State<HomePage> {
   TextEditingController _textController = TextEditingController();
-  var messages = <String>["Welcome to Stupid"];
+  List<Message> messages = [
+    Message("Welcome to Stupid", "robot"),
+  ];
   var themeData = ThemeData(
     brightness: Brightness.dark,
     primarySwatch: Colors.indigo,
@@ -26,7 +35,7 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
         // elevation: 1,
         title: Text(
-          'Stupid:',
+          'Stupid:AI',
           textAlign: TextAlign.center,
         ),
         actions: <Widget>[
@@ -53,25 +62,34 @@ class _HomePageState extends State<HomePage> {
                 reverse: false,
                 itemCount: messages.length,
                 itemBuilder: (context, index) {
-                  return Container(
-                    margin: EdgeInsets.symmetric(vertical: 10.0),
-                    padding:
-                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                    alignment: index % 2 == 0
-                        ? Alignment.centerRight
-                        : Alignment.centerLeft,
-                    decoration: BoxDecoration(
-                      color: themeData.primaryColor,
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                    child: Text(
-                      messages[index],
-                      style: TextStyle(
                         color: themeData.backgroundColor,
+                  var message = messages[index];
+                  var alignment = Alignment.centerRight;
+                  if (message.sender == "robot") {
+                    alignment = Alignment.centerLeft;
+                  }
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Container(
+                        margin: EdgeInsets.symmetric(vertical: 10.0),
+                        padding: EdgeInsets.symmetric(
+                            vertical: 10.0, horizontal: 20.0),
+                        alignment: alignment,
+                        decoration: BoxDecoration(
+                          color: themeData.primaryColor,
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        child: Text(
+                          message.text,
+                          style: TextStyle(
+                            color: themeData.backgroundColor,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    ],
                   );
                 },
               ),
@@ -98,11 +116,15 @@ class _HomePageState extends State<HomePage> {
                             icon: Icon(Icons.send),
                             onPressed: () {
                               setState(() {
-                                messages = messages + [_textController.text];
-                                print(messages);
-                                print(_textController.text);
-                                _textController.clear();
-                                setState(() {});
+                                if (_textController.text.isNotEmpty) {
+                                  Message newMessage =
+                                      Message(_textController.text, "User");
+                                  messages.add(newMessage);
+                                  print(messages);
+                                  print(_textController.text);
+                                  _textController.clear();
+                                  setState(() {});
+                                }
                               });
                             }),
                       ),
