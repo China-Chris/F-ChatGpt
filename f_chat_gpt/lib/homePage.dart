@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:web_socket_channel/io.dart';
+import 'dart:convert';
 
 class HomePage extends StatefulWidget {
   @override
@@ -13,6 +16,8 @@ class Message {
 }
 
 class _HomePageState extends State<HomePage> {
+  late WebSocketChannel channel;
+  bool isConnected = false;
   TextEditingController _textController = TextEditingController();
   List<Message> messages = [
     Message("Welcome to Stupid", "robot"),
@@ -23,6 +28,37 @@ class _HomePageState extends State<HomePage> {
   );
   bool isUserMessage(int index) {
     return index % 2 == 0;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    try {
+      channel = IOWebSocketChannel.connect(
+          'ws://192.168.1.110:8080/api/v1/gpt/gep3?uid=1&model=QA');
+      channel.stream.listen((event) {
+        final data = jsonDecode(event);
+        print(data['content']);
+        final message = Message(data['content'], 'robot');
+        setState(() {
+          messages.add(message);
+        });
+      });
+      setState(() {
+        isConnected = true;
+      });
+    } catch (e) {
+      print('没有连接到websocket服务: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    channel.sink.close();
+    setState(() {
+      isConnected = false;
+    });
+    super.dispose();
   }
 
   @override
@@ -121,6 +157,12 @@ class _HomePageState extends State<HomePage> {
                                   messages.add(newMessage);
                                   print(messages);
                                   print(_textController.text);
+                                  final jsmessage = {
+                                    'type': 2,
+                                    'content': _textController.text.trim()
+                                  };
+                                  final jsmMssage = jsonEncode(jsmessage);
+                                  channel.sink.add(jsmMssage); // 发送消息
                                   _textController.clear();
                                   setState(() {});
                                 }
@@ -149,7 +191,7 @@ class _HomePageState extends State<HomePage> {
             ListTile(
               title: Text('Under development'),
               onTap: () {
-                // Update the state of the app
+                // Update the state of the appcd
                 // ...
                 Navigator.pop(context);
               },
